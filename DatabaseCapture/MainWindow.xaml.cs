@@ -20,9 +20,38 @@ namespace DatabaseCapture
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool capturing = false;
+        bool connected =false;
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void btConnect_Click(object sender, RoutedEventArgs e)
+        {
+            connected = !connected;
+            if (connected)
+            {
+                btConnect.Content = "Disconnect";
+            }
+            else
+            {
+                btConnect.Content = "Connect";
+            }
+        }
+
+        private void btCapture_Click(object sender, RoutedEventArgs e)
+        {
+            capturing = !capturing;
+            if (capturing)
+            {
+                btCapture.Content = "Stop";
+            }
+            else
+            {
+                btCapture.Content = "Start";
+            }
         }
     }
 }
