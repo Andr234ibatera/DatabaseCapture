@@ -135,6 +135,11 @@ namespace DatabaseCapture
                     depthBitmapBuffer[i] = (byte)(depthBuffer[i] % 255);
                 }
                 depthImage.WritePixels(depthRect, depthBitmapBuffer, depthStride, 0);
+
+                if (capturing)
+                {
+                    CaptureImage(depthImage, "Depth", countDep++);
+                }
             }
             catch (Exception exception)
             {
@@ -230,7 +235,12 @@ namespace DatabaseCapture
                 {
                     Directory.CreateDirectory(pathEmotion);
                 }
-                using (FileStream fileStream = new FileStream(pathEmotion + "\\"+ type + "_"+ count + ".png", FileMode.Create))
+                string pathTyped = pathEmotion + "\\" + type;
+                if (!Directory.Exists(pathTyped))
+                {
+                    Directory.CreateDirectory(pathTyped);
+                }
+                using (FileStream fileStream = new FileStream(pathTyped + "\\"+ count + ".png", FileMode.Create))
                 {
                     PngBitmapEncoder encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));
