@@ -87,6 +87,7 @@ namespace DatabaseCapture
         {
             if (getEmotion()!="")
             {
+                rcSidebar.Fill = new SolidColorBrush(Color.FromRgb(136, 137, 143));
                 capturing = !capturing;
                 if (capturing)
                 {
@@ -96,6 +97,10 @@ namespace DatabaseCapture
                 {
                     btCapture.Content = "Start";
                 }
+            }
+            else
+            {
+                rcSidebar.Fill = new SolidColorBrush(Color.FromRgb(255, 0, 0));
             }
         }
 
@@ -209,6 +214,7 @@ namespace DatabaseCapture
             content += rdDisgust.IsChecked == true ? (string)rdDisgust.Content : "";
             content += rdAnger.IsChecked == true ? (string)rdAnger.Content : "";
             content += rdSurprise.IsChecked == true ? (string)rdSurprise.Content : "";
+            content += rdContempt.IsChecked == true ? (string)rdContempt.Content : "";
 
             return content;
         }
