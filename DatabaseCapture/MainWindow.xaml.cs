@@ -91,6 +91,8 @@ namespace DatabaseCapture
                 capturing = !capturing;
                 if (capturing)
                 {
+                    countDep = 0;
+                    countInf = 0;
                     btCapture.Content = "Stop";
                 }
                 else
