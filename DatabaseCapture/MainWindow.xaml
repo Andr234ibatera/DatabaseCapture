@@ -9,7 +9,7 @@
     <Grid>
         <Image x:Name="imgDepth" Margin="10,10,228,443"/>
         <Image x:Name="imgInfrared" Margin="10,415,228,38"/>
-        <Label x:Name="lbPath" Content="Label" HorizontalAlignment="Left" Margin="10,820,0,0" VerticalAlignment="Top" Width="749" FontSize="16"/>
+        <Label x:Name="lbPath" Content="Label" HorizontalAlignment="Left" Margin="10,820,0,0" VerticalAlignment="Top" Width="749" FontSize="14"/>
         <Rectangle Fill="#FF88898F" Margin="764,0,0,0" Stroke="#FFA62D2D"/>
         <RadioButton x:Name="rdHappiness" Content="Happiness" Margin="772,10,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" HorizontalAlignment="Left" Width="87"/>
         <RadioButton x:Name="rdSadness" Content="Sadness" HorizontalAlignment="Left" Margin="772,33,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold"/>

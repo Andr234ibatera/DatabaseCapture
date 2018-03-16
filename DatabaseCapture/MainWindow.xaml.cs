@@ -43,11 +43,14 @@ namespace DatabaseCapture
         const int R = 20;
 
         //Control Variables
-        bool capturing = false;
-        bool connected =false;
+        bool capturing, connected;
+        string path="";
+        Double countDep, countInf;
 
         public MainWindow()
         {
+            capturing = false;
+            connected = false;
             kinectSensor = KinectSensor.GetDefault();
             InitializeComponent();
         }
@@ -59,27 +62,19 @@ namespace DatabaseCapture
             {
                 kinectSensor.Open();
                 btConnect.Content = "Disconnect";
+                countDep = 0;
+                countInf = 0;
 
                 //Depth calling
-                depthFrameDescription = kinectSensor.DepthFrameSource.FrameDescription;
-
-                depthImage = new WriteableBitmap(depthFrameDescription.Width, depthFrameDescription.Height, 96, 96, PixelFormats.Gray8, null);
-                depthBuffer = new ushort[depthFrameDescription.LengthInPixels];
-                depthBitmapBuffer = new byte[depthFrameDescription.LengthInPixels];
-                depthRect = new Int32Rect(0, 0, depthFrameDescription.Width, depthFrameDescription.Height);
-                depthStride = (int)depthFrameDescription.Width;
-
-                imgDepth.Source = depthImage;
-
-                depthPoint = new Point(depthFrameDescription.Width / 2, depthFrameDescription.Height / 2);
-                //LblStatus.Content = "X " +depthPoint.X+ " Y "+depthPoint.Y;
-
                 depthFrameReader = kinectSensor.DepthFrameSource.OpenReader();
                 depthFrameReader.FrameArrived += depthFrameReader_FrameArrived;
 
                 //Infrared calling
                 reader = kinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Infrared);
                 reader.MultiSourceFrameArrived += Reader_MultiSourceFrameArrived;
+
+                gettingPath();
+                lbPath.Content = path;
             }
             else
             {
@@ -90,19 +85,33 @@ namespace DatabaseCapture
 
         private void btCapture_Click(object sender, RoutedEventArgs e)
         {
-            capturing = !capturing;
-            if (capturing)
+            if (getEmotion()!="")
             {
-                btCapture.Content = "Stop";
-            }
-            else
-            {
-                btCapture.Content = "Start";
+                capturing = !capturing;
+                if (capturing)
+                {
+                    btCapture.Content = "Stop";
+                }
+                else
+                {
+                    btCapture.Content = "Start";
+                }
             }
         }
 
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
+
+            depthFrameDescription = kinectSensor.DepthFrameSource.FrameDescription;
+
+            depthImage = new WriteableBitmap(depthFrameDescription.Width, depthFrameDescription.Height, 96, 96, PixelFormats.Gray8, null);
+            depthBuffer = new ushort[depthFrameDescription.LengthInPixels];
+            depthBitmapBuffer = new byte[depthFrameDescription.LengthInPixels];
+            depthRect = new Int32Rect(0, 0, depthFrameDescription.Width, depthFrameDescription.Height);
+            depthStride = (int)depthFrameDescription.Width;
+
+            imgDepth.Source = depthImage;
+
             try
             {
                 using (var depthFrame = e.FrameReference.AcquireFrame())
@@ -163,7 +172,68 @@ namespace DatabaseCapture
                     BitmapSource bitmap = BitmapSource.Create(width, height, 96, 96, format, null, pixels, stride);
 
                     imgInfrared.Source = bitmap;
+
+                    if (capturing)
+                    {
+                        CaptureImage(bitmap,"Infrared",countInf++);
+                    }
                 }
+            }
+        }
+
+        private void gettingPath()
+        {
+            path = "";
+            var currentDirectory = System.IO.Directory.GetCurrentDirectory();
+            string[] parts = currentDirectory.Split('\\');
+            for (int i = 0; i < (parts.Length - 4); i++)
+            {
+                path += parts[i] + "\\";
+            }
+            path += "data";
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            path += "\\" + new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            Directory.CreateDirectory(path);
+        }
+
+        private string getEmotion()
+        {
+            string content = rdHappiness.IsChecked == true ? (string)rdHappiness.Content : "";
+            content += rdSadness.IsChecked == true ? (string)rdSadness.Content : "";
+            content += rdFear.IsChecked == true ? (string)rdFear.Content : "";
+            content += rdDisgust.IsChecked == true ? (string)rdDisgust.Content : "";
+            content += rdAnger.IsChecked == true ? (string)rdAnger.Content : "";
+            content += rdSurprise.IsChecked == true ? (string)rdSurprise.Content : "";
+
+            return content;
+        }
+
+        public void CaptureImage(BitmapSource bitmap, String type, Double count)
+        {
+            try
+            {
+                string pathEmotion = path + "\\" + getEmotion();
+                if (!Directory.Exists(pathEmotion))
+                {
+                    Directory.CreateDirectory(pathEmotion);
+                }
+                using (FileStream fileStream = new FileStream(pathEmotion + "\\"+ type + "_"+ count + ".png", FileMode.Create))
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                    encoder.Save(fileStream);
+                }
+
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+                Close();
             }
         }
     }
