@@ -1,2 +1,2 @@
 # DatabaseCapture
-Software to capture images using kinect v2
+Software to capture infrared and gray-scale images using kinect-v2
